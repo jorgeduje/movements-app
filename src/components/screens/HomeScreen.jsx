@@ -7,6 +7,7 @@ import { TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Button } from "@rneui/base";
 import CardMovement from "../common/CardMovement";
+import CardMovementSkelenton from "../common/CardMovementSkelenton";
 
 export default function HomeScreen({ navigation }) {
   const { top } = useSafeAreaInsets();
@@ -16,6 +17,13 @@ export default function HomeScreen({ navigation }) {
     {
       id: 1,
       amount: -5000,
+      date: "12/10/2023",
+      name: "Salario",
+      userAvatar: "https://randomuser.me/api/portraits/men/35.jpg",
+    },
+    {
+      id: 2,
+      amount: 3000,
       date: "12/10/2023",
       name: "Salario",
       userAvatar: "https://randomuser.me/api/portraits/men/35.jpg",
@@ -123,6 +131,15 @@ export default function HomeScreen({ navigation }) {
         {/* EL LISTADO DE MOVIMIENTO  */}
 
         <View style={styles.containerMovements}>
+          {movements.length === 0 && (
+            <>
+              <CardMovementSkelenton />
+              <CardMovementSkelenton />
+              <CardMovementSkelenton />
+              <CardMovementSkelenton />
+            </>
+          )}
+
           {movements.map((movement) => (
             <CardMovement
               key={movement.id}
