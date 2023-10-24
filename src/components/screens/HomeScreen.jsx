@@ -8,29 +8,31 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Button } from "@rneui/base";
 import CardMovement from "../common/CardMovement";
 import CardMovementSkelenton from "../common/CardMovementSkelenton";
+import { useEffect } from "react";
+import { db } from "../../firebaseConfig";
+import { getDocs, collection } from "firebase/firestore";
 
 export default function HomeScreen({ navigation }) {
   const { top } = useSafeAreaInsets();
 
   const [showMoney, setShowMoney] = useState(true);
-  const [movements, setMovents] = useState([
-    {
-      id: 1,
-      amount: -5000,
-      date: "12/10/2023",
-      name: "Salario",
-      userAvatar: "https://randomuser.me/api/portraits/men/35.jpg",
-    },
-    {
-      id: 2,
-      amount: 3000,
-      date: "12/10/2023",
-      name: "Salario",
-      userAvatar: "https://randomuser.me/api/portraits/men/35.jpg",
-    },
-  ]);
+  const [movements, setMovents] = useState([]);
 
-  let num = 120000;
+  let totalAmount = movements.reduce((acc, movement) => {
+    return acc + movement.amount;
+  }, 0);
+
+  useEffect(() => {
+    let movementsCollection = collection(db, "movements");
+    getDocs(movementsCollection)
+      .then((res) => {
+        let arrayMovements = res.docs.map((movement) => {
+          return { id: movement.id, ...movement.data() };
+        });
+        setMovents(arrayMovements);
+      })
+      .catch((error) => console.log(error));
+  }, []);
 
   return (
     <SafeAreaView
@@ -52,7 +54,7 @@ export default function HomeScreen({ navigation }) {
             <FontAwesome name="money" size={40} color="#00ffa8" />
             {showMoney ? (
               <Text style={{ color: "white", fontSize: 25 }}>
-                {num.toLocaleString("es-AR", {
+                {totalAmount.toLocaleString("es-AR", {
                   style: "currency",
                   currency: "ARS",
                 })}
@@ -125,6 +127,7 @@ export default function HomeScreen({ navigation }) {
             }}
             titleStyle={{ color: "black" }}
             buttonStyle={{ borderWidth: 1, borderColor: "#00ffa8" }}
+            onPress={() => navigation.navigate("NewMovement")}
           />
         </View>
 
