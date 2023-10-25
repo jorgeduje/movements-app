@@ -4,7 +4,7 @@ import { TouchableOpacity } from "react-native";
 import { Avatar } from "@rneui/base";
 import { StyleSheet } from "react-native";
 
-export default function CardMovement({ movement, showMoney }) {
+export default function CardMovement({ movement, showMoney, handleModal }) {
   const dateFormat = new Date(movement?.date?.seconds * 1000);
   const formatDate = `${dateFormat.getDate()}/${(dateFormat.getMonth() + 1)
     .toString()
@@ -13,7 +13,10 @@ export default function CardMovement({ movement, showMoney }) {
     .padStart(2, "0")}:${dateFormat.getMinutes().toString().padStart(2, "0")} `;
 
   return (
-    <TouchableOpacity style={styles.cardMovement}>
+    <TouchableOpacity
+      style={styles.cardMovement}
+      onPress={() => handleModal(movement)}
+    >
       <View style={{ flexDirection: "row", alignItems: "center", gap: 15 }}>
         <Avatar
           size={32}

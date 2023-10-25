@@ -1,28 +1,53 @@
-import { View, Text, SafeAreaView, ScrollView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Modal,
+} from "react-native";
 import React, { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Button } from "@rneui/base";
+import { Button, color } from "@rneui/base";
 import CardMovement from "../common/CardMovement";
 import CardMovementSkelenton from "../common/CardMovementSkelenton";
 import { useEffect } from "react";
 import { db } from "../../firebaseConfig";
-import { getDocs, collection } from "firebase/firestore";
+import { getDocs, collection, deleteDoc, doc } from "firebase/firestore";
 
 export default function HomeScreen({ navigation }) {
   const { top } = useSafeAreaInsets();
 
   const [showMoney, setShowMoney] = useState(true);
   const [movements, setMovents] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [movementToDelete, setMovementToDelete] = useState(null);
+  const [isDelete, setIsDelete] = useState();
+
+  const handleModal = (movement) => {
+    setModalVisible(true);
+    setMovementToDelete(movement);
+  };
+
+  const confirmDelete = async () => {
+    setIsDelete(true);
+    setModalVisible(false);
+    setMovents([]);
+
+    await deleteDoc(doc(db, "movements", movementToDelete.id));
+    setMovementToDelete(null);
+  };
 
   let totalAmount = movements.reduce((acc, movement) => {
     return acc + movement.amount;
   }, 0);
 
   useEffect(() => {
+    setIsDelete(false);
     let movementsCollection = collection(db, "movements");
     getDocs(movementsCollection)
       .then((res) => {
@@ -32,7 +57,7 @@ export default function HomeScreen({ navigation }) {
         setMovents(arrayMovements);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [isDelete]);
 
   return (
     <SafeAreaView
@@ -148,10 +173,60 @@ export default function HomeScreen({ navigation }) {
               key={movement.id}
               movement={movement}
               showMoney={showMoney}
+              handleModal={handleModal}
             />
           ))}
         </View>
       </ScrollView>
+      {/* MODAL */}
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.textModal}>
+              Seguro quieres eliminar {movementToDelete?.name} ?
+            </Text>
+            <View style={{ gap: 15 }}>
+              <Button
+                title={"Si, eliminar"}
+                type="outline"
+                containerStyle={{
+                  width: 170,
+                  backgroundColor: "#161717",
+                  borderRadius: 5,
+                }}
+                titleStyle={{
+                  color: "whitesmoke",
+                }}
+                buttonStyle={{
+                  borderWidth: 1,
+                  borderColor: "#161717",
+                }}
+                onPress={confirmDelete}
+              />
+              <Button
+                title={"No, cancelar"}
+                type="outline"
+                containerStyle={{
+                  width: 170,
+                  backgroundColor: "#161717",
+                  borderRadius: 5,
+                }}
+                titleStyle={{
+                  color: "whitesmoke",
+                }}
+                buttonStyle={{
+                  borderWidth: 1,
+                  borderColor: "#161717",
+                }}
+                onPress={() => {
+                  setModalVisible(false);
+                  setMovementToDelete(null);
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -197,5 +272,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#282929",
     borderRadius: 5,
     marginBottom: 50,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    backgroundColor: "#00ffa8",
+    borderRadius: 5,
+    padding: 25,
+    alignItems: "center",
+    margin: 20,
+  },
+  textModal: {
+    color: "#282929",
+    fontSize: 20,
+    textAlign: "center",
+    marginBottom: 15,
   },
 });
