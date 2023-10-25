@@ -11,8 +11,6 @@ export default function CardMovement({ movement, showMoney }) {
     .padStart(2, "0")}/${dateFormat.getFullYear()} ${(dateFormat.getHours() - 3)
     .toString()
     .padStart(2, "0")}:${dateFormat.getMinutes().toString().padStart(2, "0")} `;
-  console.log(dateFormat);
-  console.log(formatDate);
 
   return (
     <TouchableOpacity style={styles.cardMovement}>

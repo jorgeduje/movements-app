@@ -127,7 +127,7 @@ export default function HomeScreen({ navigation }) {
             }}
             titleStyle={{ color: "black" }}
             buttonStyle={{ borderWidth: 1, borderColor: "#00ffa8" }}
-            onPress={() => navigation.navigate("NewMovement")}
+            onPress={() => navigation.replace("NewMovement")}
           />
         </View>
 

@@ -5,6 +5,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Input } from "@rneui/base";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
+import { useEffect } from "react";
+import { db } from "../../firebaseConfig";
+import { serverTimestamp, addDoc, collection } from "firebase/firestore";
 
 export default function NewMovement({ navigation }) {
   const { top } = useSafeAreaInsets();
@@ -15,8 +18,28 @@ export default function NewMovement({ navigation }) {
     userAvatar: "",
   });
 
+  useEffect(() => {
+    const randomNumber = Math.floor(Math.random() * 1000);
+    const imageUrl = `https://picsum.photos/200/200?random=${randomNumber}`;
+    setMovement({ ...movement, userAvatar: imageUrl });
+  }, []);
+
   const addNewMovement = () => {
-    console.log(movement);
+    const amount =
+      typeMovement === "Ingreso"
+        ? Number(movement.amount)
+        : -Number(movement.amount);
+
+    let newMovement = {
+      ...movement,
+      amount,
+      date: serverTimestamp(),
+    };
+
+    const movementCollection = collection(db, "movements");
+    addDoc(movementCollection, newMovement).then(() => {
+      navigation.navigate("HomeScreen");
+    });
   };
 
   return (
@@ -127,7 +150,7 @@ export default function NewMovement({ navigation }) {
           }}
           titleStyle={{ color: "black" }}
           buttonStyle={{ borderWidth: 1, borderColor: "#00ffa8" }}
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate("HomeScreen")}
         />
       </View>
     </SafeAreaView>

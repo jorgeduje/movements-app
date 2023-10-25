@@ -13,7 +13,6 @@ export default function LoginScreen({ navigation }) {
   });
 
   const handleSubmit = () => {
-    console.log(user);
     navigation.navigate("HomeScreen");
   };
 
